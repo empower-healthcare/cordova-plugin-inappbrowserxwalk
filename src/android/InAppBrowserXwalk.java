@@ -19,12 +19,14 @@ import org.xwalk.core.internal.XWalkViewInternal;
 import org.xwalk.core.XWalkCookieManager;
 
 import android.util.JsonReader;
+import android.view.Display;
 import android.view.View;
 import android.view.Window;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.graphics.Point;
 import android.graphics.Typeface;
 import android.widget.Toast;
 
@@ -100,6 +102,15 @@ public class InAppBrowserXwalk extends CordovaPlugin {
             } catch (JSONException ex) {
             }
         }
+
+        @Override
+        public boolean shouldOverrideUrlLoading(XWalkView view, String url) {
+            if (url.startsWith("bun2card:")) {
+                onLoadStarted(view, url);
+                return true;
+            }
+            return super.shouldOverrideUrlLoading(view, url);
+        }
     }
 
     private void openBrowser(final JSONArray data) throws JSONException {
@@ -109,6 +120,16 @@ public class InAppBrowserXwalk extends CordovaPlugin {
             public void run() {
                 dialog = new BrowserDialog(cordova.getActivity(), android.R.style.Theme_NoTitleBar);
                 xWalkWebView = new XWalkView(cordova.getActivity(), cordova.getActivity());
+
+                String overrideUserAgent = preferences.getString("OverrideUserAgent", null);
+                String appendUserAgent = preferences.getString("AppendUserAgent", null);
+                if (overrideUserAgent != null) {
+                    xWalkWebView.setUserAgentString(overrideUserAgent);
+                }
+                if (appendUserAgent != null) {
+                    xWalkWebView.setUserAgentString(xWalkWebView.getUserAgentString() + appendUserAgent);
+                }
+
                 XWalkCookieManager mCookieManager = new XWalkCookieManager();
                 mCookieManager.setAcceptCookie(true);
                 mCookieManager.setAcceptFileSchemeCookies(true);
@@ -151,6 +172,11 @@ public class InAppBrowserXwalk extends CordovaPlugin {
 
                 LinearLayout main = new LinearLayout(cordova.getActivity());
                 main.setOrientation(LinearLayout.VERTICAL);
+
+                Display display = cordova.getActivity().getWindowManager().getDefaultDisplay();
+                Point point = new Point();
+                display.getSize(point);
+                toolbarHeight = toolbarHeight * point.x / 720;
 
                 RelativeLayout toolbar = new RelativeLayout(cordova.getActivity());
                 toolbar.setBackgroundColor(android.graphics.Color.parseColor(toolbarColor));
