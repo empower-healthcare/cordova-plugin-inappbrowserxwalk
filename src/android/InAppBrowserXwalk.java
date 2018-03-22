@@ -18,6 +18,7 @@ import org.xwalk.core.XWalkResourceClient;
 import org.xwalk.core.internal.XWalkViewInternal;
 import org.xwalk.core.XWalkCookieManager;
 
+import android.os.Bundle;
 import android.util.JsonReader;
 import android.view.Display;
 import android.view.View;
@@ -281,5 +282,16 @@ public class InAppBrowserXwalk extends CordovaPlugin {
                 });
             }
         });
+    }
+
+    @Override
+    public Bundle onSaveInstanceState() {
+        Bundle state = new Bundle();
+        return state;
+    }
+
+    @Override
+    public void onRestoreStateForActivityResult(Bundle state, CallbackContext callbackContext) {
+        this.callbackContext = callbackContext;
     }
 }
