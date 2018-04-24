@@ -22,7 +22,11 @@ InAppBrowserXwalk.prototype = {
         cordova.exec(null, null, "InAppBrowserXwalk", "hide", []);
     },
     executeScript: function(injectDetails, cb) {
-        cordova.exec(cb, null, "InAppBrowserXwalk", "injectScriptCode", [injectDetails, !!cb]);
+        if (injectDetails.code) {
+            cordova.exec(cb, null, "InAppBrowserXwalk", "injectScriptCode", [injectDetails.code, !!cb]);
+        } else {
+            throw new Error('executeScript requires code to be specified');
+        }
     }
 }
 
