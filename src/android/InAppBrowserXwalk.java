@@ -78,6 +78,10 @@ public class InAppBrowserXwalk extends CordovaPlugin {
             this.resize(data.getInt(0));
         }
 
+        if (action.equals("setFocusable")) {
+            this.setFocusable(data.getBoolean(0));
+        }
+
         return true;
     }
 
@@ -171,7 +175,6 @@ public class InAppBrowserXwalk extends CordovaPlugin {
 
                 Window window = dialog.getWindow();
                 window.clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
-                window.addFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE);
                 window.addFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL);
 
 
@@ -184,6 +187,21 @@ public class InAppBrowserXwalk extends CordovaPlugin {
                 dialog.addContentView(mainLayout, layoutParams);
                 if (!openHidden) {
                     dialog.show();
+                }
+            }
+        });
+    }
+
+    public void setFocusable(final boolean focusable) {
+        this.cordova.getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Window window = dialog.getWindow();
+
+                if (focusable) {
+                    window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE);
+                } else {
+                    window.addFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE);
                 }
             }
         });
