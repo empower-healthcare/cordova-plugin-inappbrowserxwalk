@@ -40,6 +40,7 @@ public class InAppBrowserXwalk extends CordovaPlugin {
     private BrowserDialog dialog;
     private XWalkView xWalkWebView;
     private CallbackContext callbackContext;
+    private LinearLayout mainLayout;
 
     public static final String LOG_TAG = "InAppBrowserXwalk";
 
@@ -71,6 +72,10 @@ public class InAppBrowserXwalk extends CordovaPlugin {
 
         if (action.equals("loadUrl")) {
             this.loadUrl(data.getString(0));
+        }
+
+        if (action.equals("resize")) {
+            this.resize(data.getInt(0));
         }
 
         return true;
@@ -159,10 +164,10 @@ public class InAppBrowserXwalk extends CordovaPlugin {
                 }
 
                 LayoutParams layoutParams = new LayoutParams(LayoutParams.FILL_PARENT, height);
-                LinearLayout main = new LinearLayout(cordova.getActivity());
-                main.setOrientation(LinearLayout.VERTICAL);
-                main.setLayoutParams(layoutParams);
-                main.addView(xWalkWebView, layoutParams);
+                mainLayout = new LinearLayout(cordova.getActivity());
+                mainLayout.setOrientation(LinearLayout.VERTICAL);
+                mainLayout.setLayoutParams(layoutParams);
+                mainLayout.addView(xWalkWebView, layoutParams);
 
                 Window window = dialog.getWindow();
                 window.clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
@@ -176,7 +181,7 @@ public class InAppBrowserXwalk extends CordovaPlugin {
                 dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
                 dialog.getWindow().getAttributes().windowAnimations = android.R.style.Animation_Dialog;
                 dialog.setCancelable(true);
-                dialog.addContentView(main, layoutParams);
+                dialog.addContentView(mainLayout, layoutParams);
                 if (!openHidden) {
                     dialog.show();
                 }
@@ -207,12 +212,33 @@ public class InAppBrowserXwalk extends CordovaPlugin {
     }
 
     public void loadUrl(final String url) {
-      this.cordova.getActivity().runOnUiThread(new Runnable() {
-          @Override
-          public void run() {
-            xWalkWebView.load(url, "");
-          }
-      });
+        this.cordova.getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                xWalkWebView.load(url, "");
+            }
+        });
+    }
+
+    public void resize(final int height) {
+        this.cordova.getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Window window = dialog.getWindow();
+                WindowManager.LayoutParams windowParams = new WindowManager.LayoutParams();
+                windowParams.copyFrom(window.getAttributes());
+                windowParams.height = height;
+                window.setAttributes(windowParams);
+
+                LayoutParams params = xWalkWebView.getLayoutParams();
+                params.height = height;
+                xWalkWebView.setLayoutParams(params);
+
+                params = mainLayout.getLayoutParams();
+                params.height = height;
+                mainLayout.setLayoutParams(params);
+            }
+        });
     }
 
     public void closeBrowser() {
