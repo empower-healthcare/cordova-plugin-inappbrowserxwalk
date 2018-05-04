@@ -23,13 +23,6 @@ cordova.define("com.mcierzniak.cordova.plugin.inappbrowserxwalk.inAppBrowserXwal
     },
     loadUrl: function(url) {
       cordova.exec(null, null, 'InAppBrowserXwalk', 'loadUrl', [url]);
-    },
-    executeScript: function (injectDetails, cb) {
-      if (injectDetails.code) {
-        cordova.exec(cb, null, 'InAppBrowserXwalk', 'injectScriptCode', [injectDetails.code, !!cb]);
-      } else {
-        throw new Error('executeScript requires code to be specified');
-      }
     }
   };
 

@@ -16,6 +16,7 @@ import org.json.JSONStringer;
 import org.xwalk.core.XWalkView;
 import org.xwalk.core.XWalkResourceClient;
 import org.xwalk.core.XWalkCookieManager;
+import org.xwalk.core.JavascriptInterface;
 
 import android.os.Bundle;
 import android.view.Window;
@@ -24,8 +25,6 @@ import android.widget.LinearLayout;
 
 import android.webkit.ValueCallback;
 
-import android.util.Log;
-
 public class InAppBrowserXwalk extends CordovaPlugin {
 
     private BrowserDialog dialog;
@@ -33,13 +32,8 @@ public class InAppBrowserXwalk extends CordovaPlugin {
     private XWalkView navigationWebView;
     private CallbackContext callbackContext;
 
-    public static final String LOG_TAG = "InAppBrowserXwalk";
-
     @Override
     public boolean execute(String action, JSONArray data, CallbackContext callbackContext) throws JSONException {
-
-        Log.d(LOG_TAG, "Action " + action);
-
         if (action.equals("open")) {
             this.callbackContext = callbackContext;
             this.openBrowser(data);
@@ -57,15 +51,21 @@ public class InAppBrowserXwalk extends CordovaPlugin {
             this.hideBrowser();
         }
 
-        if (action.equals("injectScriptCode")) {
-            this.injectJS(data.getString(0), callbackContext);
-        }
-
         if (action.equals("loadUrl")) {
             this.loadUrl(data.getString(0));
         }
 
         return true;
+    }
+
+    class NavigationJsInterface {
+        NavigationJsInterface() {
+        }
+
+        @JavascriptInterface
+        public void openUrl(final String url) {
+            loadUrl(url);
+        }
     }
 
     class MyResourceClient extends XWalkResourceClient {
@@ -82,6 +82,7 @@ public class InAppBrowserXwalk extends CordovaPlugin {
                 PluginResult result = new PluginResult(PluginResult.Status.OK, obj);
                 result.setKeepCallback(true);
                 callbackContext.sendPluginResult(result);
+                this.onNavigationEvent(obj);
             } catch (JSONException ex) {
             }
         }
@@ -95,17 +96,13 @@ public class InAppBrowserXwalk extends CordovaPlugin {
                 PluginResult result = new PluginResult(PluginResult.Status.OK, obj);
                 result.setKeepCallback(true);
                 callbackContext.sendPluginResult(result);
+                this.onNavigationEvent(obj);
             } catch (JSONException ex) {
             }
         }
 
-        @Override
-        public boolean shouldOverrideUrlLoading(XWalkView view, String url) {
-            if (url.startsWith("bun2card:")) {
-                onLoadStarted(view, url);
-                return true;
-            }
-            return super.shouldOverrideUrlLoading(view, url);
+        public void onNavigationEvent(JSONObject obj) {
+            navigationWebView.evaluateJavascript("javascript:window.onNavigationEvent && window.onNavigationEvent(" + obj + ")", null);
         }
     }
 
@@ -132,11 +129,14 @@ public class InAppBrowserXwalk extends CordovaPlugin {
                 mCookieManager.setAcceptFileSchemeCookies(true);
 
                 xWalkWebView.setResourceClient(new MyResourceClient(xWalkWebView));
-                xWalkWebView.load(url, "");
+
+                if (url != null && url.length() != 0) {
+                    xWalkWebView.load(url, "");
+                }
 
                 navigationWebView.setResourceClient(new MyResourceClient(navigationWebView));
+                navigationWebView.addJavascriptInterface(new NavigationJsInterface(), "navigation");
                 navigationWebView.load("file:///android_asset/www/navigation.html", "");
-
 
                 int navigationHeight = 40;
                 boolean openHidden = false;
@@ -222,38 +222,6 @@ public class InAppBrowserXwalk extends CordovaPlugin {
                     callbackContext.sendPluginResult(result);
                 } catch (JSONException ex) {
                 }
-            }
-        });
-    }
-
-    public void injectJS(final String source, CallbackContext callbackContext) {
-        final CallbackContext cbContext = callbackContext;
-        String jsWrapper = "(function(){return [eval(%s)];})()";
-        JSONArray jsonEsc = new org.json.JSONArray();
-        jsonEsc.put(source);
-        String jsonRepr = jsonEsc.toString();
-        String jsonSourceString = jsonRepr.substring(1, jsonRepr.length() - 1);
-        final String finalScriptToInject = String.format(jsWrapper, jsonSourceString);
-
-        Log.d(LOG_TAG, "Inject JS: " + finalScriptToInject);
-        this.cordova.getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                xWalkWebView.evaluateJavascript(finalScriptToInject, new ValueCallback<String>() {
-                    @Override
-                    public void onReceiveValue(String scriptResult) {
-                        Log.d(LOG_TAG, "Inject JS result: " + scriptResult);
-                        PluginResult result;
-                        try {
-                            JSONArray jsonArray = new JSONArray(scriptResult);
-                            result = new PluginResult(PluginResult.Status.OK, jsonArray);
-                        } catch (JSONException e) {
-                            result = new PluginResult(PluginResult.Status.OK, scriptResult);
-                        }
-                        result.setKeepCallback(true);
-                        cbContext.sendPluginResult(result);
-                    }
-                });
             }
         });
     }
