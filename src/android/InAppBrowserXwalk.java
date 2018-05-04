@@ -82,6 +82,7 @@ public class InAppBrowserXwalk extends CordovaPlugin {
                 PluginResult result = new PluginResult(PluginResult.Status.OK, obj);
                 result.setKeepCallback(true);
                 callbackContext.sendPluginResult(result);
+
                 this.onNavigationEvent(obj);
             } catch (JSONException ex) {
             }
@@ -96,6 +97,22 @@ public class InAppBrowserXwalk extends CordovaPlugin {
                 PluginResult result = new PluginResult(PluginResult.Status.OK, obj);
                 result.setKeepCallback(true);
                 callbackContext.sendPluginResult(result);
+
+                this.onNavigationEvent(obj);
+            } catch (JSONException ex) {
+            }
+        }
+
+        @Override
+        public void onProgressChanged(XWalkView view, int progressInPercent) {
+            try {
+                JSONObject obj = new JSONObject();
+                obj.put("type", "loadprogress");
+                obj.put("progress", progressInPercent);
+                PluginResult result = new PluginResult(PluginResult.Status.OK, obj);
+                result.setKeepCallback(true);
+                callbackContext.sendPluginResult(result);
+
                 this.onNavigationEvent(obj);
             } catch (JSONException ex) {
             }

@@ -34,6 +34,9 @@ cordova.define("com.mcierzniak.cordova.plugin.inappbrowserxwalk.inAppBrowserXwal
       case 'loadstop':
         callbacks['loadstop'] !== undefined && callbacks['loadstop'](event);
         break;
+      case 'loadprogress':
+        callbacks['loadprogress'] !== undefined && callbacks['loadprogress'](event);
+        break;
       case 'loaderror':
         callbacks['loaderror'] !== undefined && callbacks['loaderror'](event);
         break;
