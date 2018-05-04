@@ -9,7 +9,7 @@ This plugin requires Cordova build with Crosswalk.
 
 ## Installation
 
-    $ cordova plugin add https://github.com/Shoety/cordova-plugin-inappbrowserxwalk
+    $ cordova plugin add https://github.com/jonathan-reisdorf/cordova-plugin-inappbrowserxwalk
 
 Or if you are using cordova cli version 5.0.0 or higher then you can fetch it from npm :
 https://www.npmjs.com/package/com.shoety.cordova.plugin.inappbrowserxwalk
@@ -60,16 +60,15 @@ Possible events: loadstart, loadstop, exit
 ```
 Removes the eventlistener for an event.
 
-
+### loadUrl
+```js
+	browser.loadUrl(url);
+```
 
 ## Examples
 ```js
 	var options = {
-    				toolbarColor: '#FFFFFF', // Background color of the toolbar in #RRGGBB
-    				toolbarHeight: '40',
-    				closeButtonText: '< Close',
-    				closeButtonSize: '25',
-    				closeButtonColor: '#000000',
+    				navigationHeight: 40,
                     openHidden: false
 		          };
 

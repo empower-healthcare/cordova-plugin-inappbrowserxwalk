@@ -15,22 +15,13 @@ import org.json.JSONException;
 import org.json.JSONStringer;
 import org.xwalk.core.XWalkView;
 import org.xwalk.core.XWalkResourceClient;
-import org.xwalk.core.internal.XWalkViewInternal;
 import org.xwalk.core.XWalkCookieManager;
 
 import android.os.Bundle;
-import android.util.JsonReader;
-import android.view.Gravity;
-import android.view.View;
 import android.view.Window;
-import android.view.WindowManager;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.LinearLayout;
-import android.widget.TextView;
-import android.graphics.Typeface;
-import android.widget.Toast;
 
-import android.webkit.WebResourceResponse;
 import android.webkit.ValueCallback;
 
 import android.util.Log;
@@ -39,8 +30,8 @@ public class InAppBrowserXwalk extends CordovaPlugin {
 
     private BrowserDialog dialog;
     private XWalkView xWalkWebView;
+    private XWalkView navigationWebView;
     private CallbackContext callbackContext;
-    private LinearLayout mainLayout;
 
     public static final String LOG_TAG = "InAppBrowserXwalk";
 
@@ -72,14 +63,6 @@ public class InAppBrowserXwalk extends CordovaPlugin {
 
         if (action.equals("loadUrl")) {
             this.loadUrl(data.getString(0));
-        }
-
-        if (action.equals("resize")) {
-            this.resize(data.getInt(0));
-        }
-
-        if (action.equals("setFocusable")) {
-            this.setFocusable(data.getBoolean(0));
         }
 
         return true;
@@ -133,6 +116,7 @@ public class InAppBrowserXwalk extends CordovaPlugin {
             public void run() {
                 dialog = new BrowserDialog(cordova.getActivity(), android.R.style.Theme_NoTitleBar);
                 xWalkWebView = new XWalkView(cordova.getActivity(), cordova.getActivity());
+                navigationWebView = new XWalkView(cordova.getActivity(), cordova.getActivity());
 
                 String overrideUserAgent = preferences.getString("OverrideUserAgent", null);
                 String appendUserAgent = preferences.getString("AppendUserAgent", null);
@@ -146,62 +130,48 @@ public class InAppBrowserXwalk extends CordovaPlugin {
                 XWalkCookieManager mCookieManager = new XWalkCookieManager();
                 mCookieManager.setAcceptCookie(true);
                 mCookieManager.setAcceptFileSchemeCookies(true);
+
                 xWalkWebView.setResourceClient(new MyResourceClient(xWalkWebView));
                 xWalkWebView.load(url, "");
 
+                navigationWebView.setResourceClient(new MyResourceClient(navigationWebView));
+                navigationWebView.load("file:///android_asset/www/navigation.html", "");
+
+
+                int navigationHeight = 40;
                 boolean openHidden = false;
-                int height = LayoutParams.FILL_PARENT;
 
                 if (data != null && data.length() > 1) {
                     try {
                         JSONObject options = new JSONObject(data.getString(1));
 
+                        if (!options.isNull("navigationHeight")) {
+                            navigationHeight = options.getInt("navigationHeight");
+                        }
                         if (!options.isNull("openHidden")) {
                             openHidden = options.getBoolean("openHidden");
-                        }
-                        if (!options.isNull("height")) {
-                            height = options.getInt("height");
                         }
                     } catch (JSONException ex) {
 
                     }
                 }
 
-                LayoutParams layoutParams = new LayoutParams(LayoutParams.FILL_PARENT, height);
-                mainLayout = new LinearLayout(cordova.getActivity());
-                mainLayout.setOrientation(LinearLayout.VERTICAL);
-                mainLayout.setLayoutParams(layoutParams);
-                mainLayout.addView(xWalkWebView, layoutParams);
+                LinearLayout main = new LinearLayout(cordova.getActivity());
+                main.setOrientation(LinearLayout.VERTICAL);
 
-                Window window = dialog.getWindow();
-                window.clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
-                window.addFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL);
+                navigationHeight = (int) (navigationHeight * Resources.getSystem().getDisplayMetrics().density);
+                xWalkWebView.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT, (float) 1));
+                navigationWebView.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, navigationHeight, (float) 0));
 
-
-                window.setGravity(Gravity.TOP);
-                window.setLayout(LayoutParams.FILL_PARENT, height);
+                main.addView(xWalkWebView);
+                main.addView(navigationWebView);
 
                 dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-                dialog.getWindow().getAttributes().windowAnimations = android.R.style.Animation_Dialog;
-                dialog.setCancelable(true);
-                dialog.addContentView(mainLayout, layoutParams);
+                dialog.setCancelable(false);
+                dialog.addContentView(main, new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
+
                 if (!openHidden) {
                     dialog.show();
-                }
-            }
-        });
-    }
-
-    public void setFocusable(final boolean focusable) {
-        this.cordova.getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                Window window = dialog.getWindow();
-
-                if (focusable) {
-                    window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE);
-                } else {
-                    window.addFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE);
                 }
             }
         });
@@ -234,27 +204,6 @@ public class InAppBrowserXwalk extends CordovaPlugin {
             @Override
             public void run() {
                 xWalkWebView.load(url, "");
-            }
-        });
-    }
-
-    public void resize(final int height) {
-        this.cordova.getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                Window window = dialog.getWindow();
-                WindowManager.LayoutParams windowParams = new WindowManager.LayoutParams();
-                windowParams.copyFrom(window.getAttributes());
-                windowParams.height = height;
-                window.setAttributes(windowParams);
-
-                LayoutParams params = xWalkWebView.getLayoutParams();
-                params.height = height;
-                xWalkWebView.setLayoutParams(params);
-
-                params = mainLayout.getLayoutParams();
-                params.height = height;
-                mainLayout.setLayoutParams(params);
             }
         });
     }
