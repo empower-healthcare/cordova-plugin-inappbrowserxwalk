@@ -26,5 +26,9 @@ public class BrowserDialog extends Dialog {
     public BrowserDialog(Context context, int theme) {
         super(context, theme);
     }
-    
+
+    @Override
+    public void onBackPressed() {
+      return;
+    }
 }
