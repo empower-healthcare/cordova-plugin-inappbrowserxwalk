@@ -16,6 +16,8 @@ import org.json.JSONStringer;
 import org.xwalk.core.XWalkView;
 import org.xwalk.core.XWalkResourceClient;
 import org.xwalk.core.XWalkCookieManager;
+import org.xwalk.core.XWalkNavigationHistory;
+import org.xwalk.core.XWalkNavigationItem;
 import org.xwalk.core.JavascriptInterface;
 
 import android.os.Bundle;
@@ -27,6 +29,7 @@ import android.webkit.ValueCallback;
 
 public class InAppBrowserXwalk extends CordovaPlugin {
 
+    private String navigationFileUrl = "file:///android_asset/www/navigation.html";
     private BrowserDialog dialog;
     private XWalkView xWalkWebView;
     private XWalkView navigationWebView;
@@ -75,8 +78,13 @@ public class InAppBrowserXwalk extends CordovaPlugin {
 
         @Override
         public void onLoadStarted(XWalkView view, String url) {
+            if (url.equals(navigationFileUrl)) {
+                return;
+            }
+
             try {
                 JSONObject obj = new JSONObject();
+                this.addNavigationItemDetails(view, obj);
                 obj.put("type", "loadstart");
                 obj.put("url", url);
                 PluginResult result = new PluginResult(PluginResult.Status.OK, obj);
@@ -90,8 +98,13 @@ public class InAppBrowserXwalk extends CordovaPlugin {
 
         @Override
         public void onLoadFinished(XWalkView view, String url) {
+            if (url.equals(navigationFileUrl)) {
+                return;
+            }
+
             try {
                 JSONObject obj = new JSONObject();
+                this.addNavigationItemDetails(view, obj);
                 obj.put("type", "loadstop");
                 obj.put("url", url);
                 PluginResult result = new PluginResult(PluginResult.Status.OK, obj);
@@ -116,6 +129,25 @@ public class InAppBrowserXwalk extends CordovaPlugin {
                 this.onNavigationEvent(obj);
             } catch (JSONException ex) {
             }
+        }
+
+        public JSONObject addNavigationItemDetails(XWalkView view, JSONObject obj) {
+            XWalkNavigationHistory navigationHistory = view.getNavigationHistory();
+
+            if (navigationHistory.size() < 1) {
+                return obj;
+            }
+
+            XWalkNavigationItem navigationItem = navigationHistory.getCurrentItem();
+
+            try {
+                obj.put("navigationUrl", navigationItem.getUrl());
+                obj.put("navigationOriginalUrl", navigationItem.getOriginalUrl());
+                obj.put("navigationTitle", navigationItem.getTitle());
+            } catch (JSONException ex) {
+            }
+
+            return obj;
         }
 
         public void onNavigationEvent(JSONObject obj) {
@@ -153,7 +185,7 @@ public class InAppBrowserXwalk extends CordovaPlugin {
 
                 navigationWebView.setResourceClient(new MyResourceClient(navigationWebView));
                 navigationWebView.addJavascriptInterface(new NavigationJsInterface(), "navigation");
-                navigationWebView.load("file:///android_asset/www/navigation.html", "");
+                navigationWebView.load(navigationFileUrl, "");
 
                 int navigationHeight = 40;
                 boolean openHidden = false;
@@ -169,7 +201,6 @@ public class InAppBrowserXwalk extends CordovaPlugin {
                             openHidden = options.getBoolean("openHidden");
                         }
                     } catch (JSONException ex) {
-
                     }
                 }
 
