@@ -34,79 +34,79 @@ This plugin requires Cordova build with Crosswalk.
 
 ### open
 ```js
-	const browser = window.inAppBrowserXwalk.open(url, options);
+const browser = window.inAppBrowserXwalk.open(url, options);
 ```
 Opens a new Crosswalk Webview in a dialog. The options parameter is optional, possible parameters
 are demonstrated under Examples. If you dont pass options, the browser will open with default options.
 
 ### close
 ```js
-	browser.close()
+browser.close()
 ```
 Closes the browser and destroys dialog and webview.
 
 ### hide
 ```js
-	browser.hide()
+browser.hide()
 ```
 Hides the browser but does not destroy it. You can call the show() function to make the browser
 visible again.
 
 ### show
 ```js
-	browser.show()
+browser.show()
 ```
 Will make a hidden browser visible. Use this after browser.hide() or if the browser was opened
 with the openHidden : true option.
 
 ### addEventListener
 ```js
-	browser.addEventListener(eventname, callback)
+browser.addEventListener(eventname, callback)
 ```
 Adds a listener for an event from the crosswalk browser.
 Possible events: loadstart, loadstop, loadprogress, exit
 
 ### removeEventListener
 ```js
-	browser.removeEventListener(eventname)
+browser.removeEventListener(eventname)
 ```
 Removes the eventlistener for an event.
 
 ### loadUrl
 ```js
-	browser.loadUrl(url);
+browser.loadUrl(url);
 ```
 
 ## Examples
 ```js
-	const options = {
-      navigationHeight: 40, // optional
-      openHidden: false // optional
-    };
+const options = {
+  navigationHeight: 40, // optional
+  openHidden: false // optional
+};
 
-    document.addEventListener('deviceready', () => {
-      if (!window.cordova || !window.inAppBrowserXwalk || cordova.platformId !== 'android') {
-        return window.open('https://google.de', '_blank');
-      }
-      
-      const browser = window.inAppBrowserXwalk.open('https://google.de', options);
+document.addEventListener('deviceready', () => {
+  if (!window.cordova || !window.inAppBrowserXwalk || cordova.platformId !== 'android') {
+    return window.open('https://google.de', '_blank');
+  }
 
-      browser.addEventListener('loadstart', data => {
-        console.log(data);
-      });
+  const browser = window.inAppBrowserXwalk.open('https://google.de', options);
 
-      browser.addEventListener('loadstop', data => {
-        console.log(data);
-      });
-      
-      browser.addEventListener('loadprogress', data => {
-        console.log(data);
-      });
+  browser.addEventListener('loadstart', data => {
+    console.log(data);
+  });
 
-      browser.addEventListener('exit', () => {
-        console.log('browser closed');
-      });
-    }, false);
+  browser.addEventListener('loadstop', data => {
+    console.log(data);
+  });
+
+  browser.addEventListener('loadprogress', data => {
+    console.log(data);
+  });
+
+  browser.addEventListener('exit', () => {
+    console.log('browser closed');
+  });
+}, false);
 ```
 
 `options` is an optional argument, leaving it out opens the browser with standard settings.
