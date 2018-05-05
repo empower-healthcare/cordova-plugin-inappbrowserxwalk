@@ -1,4 +1,4 @@
-cordova.define("com.mcierzniak.cordova.plugin.inappbrowserxwalk.inAppBrowserXwalk", function(require, exports, module) {
+cordova.define('com.jonathanreisdorf.cordova.plugin.inappbrowserxwalk.inAppBrowserXwalk', (require, exports, module) => {
   /*global cordova, module*/
 
   function InAppBrowserXwalk() {}
@@ -23,19 +23,6 @@ cordova.define("com.mcierzniak.cordova.plugin.inappbrowserxwalk.inAppBrowserXwal
     },
     loadUrl: function(url) {
       cordova.exec(null, null, 'InAppBrowserXwalk', 'loadUrl', [url]);
-    },
-    resize: function(height) {
-      cordova.exec(null, null, 'InAppBrowserXwalk', 'resize', [height]);
-    },
-    setFocusable: function(focusable = true) {
-      cordova.exec(null, null, 'InAppBrowserXwalk', 'setFocusable', [!!focusable]);
-    },
-    executeScript: function (injectDetails, cb) {
-      if (injectDetails.code) {
-        cordova.exec(cb, null, 'InAppBrowserXwalk', 'injectScriptCode', [injectDetails.code, !!cb]);
-      } else {
-        throw new Error('executeScript requires code to be specified');
-      }
     }
   };
 
@@ -46,6 +33,9 @@ cordova.define("com.mcierzniak.cordova.plugin.inappbrowserxwalk.inAppBrowserXwal
         break;
       case 'loadstop':
         callbacks['loadstop'] !== undefined && callbacks['loadstop'](event);
+        break;
+      case 'loadprogress':
+        callbacks['loadprogress'] !== undefined && callbacks['loadprogress'](event);
         break;
       case 'loaderror':
         callbacks['loaderror'] !== undefined && callbacks['loaderror'](event);
