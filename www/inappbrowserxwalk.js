@@ -1,4 +1,4 @@
-cordova.define('com.jonathanreisdorf.cordova.plugin.inappbrowserxwalk.inAppBrowserXwalk', (require, exports, module) => {
+cordova.define("com.jonathanreisdorf.cordova.plugin.inappbrowserxwalk.inAppBrowserXwalk", function(require, exports, module) {
   /*global cordova, module*/
 
   function InAppBrowserXwalk() {}
