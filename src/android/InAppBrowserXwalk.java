@@ -1,6 +1,6 @@
-package com.example.plugin.InAppBrowserXwalk;
+package com.jonathanreisdorf.plugin.InAppBrowserXwalk;
 
-import com.example.plugin.InAppBrowserXwalk.BrowserDialog;
+import com.jonathanreisdorf.plugin.InAppBrowserXwalk.BrowserDialog;
 
 import android.content.res.Resources;
 
