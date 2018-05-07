@@ -7,7 +7,6 @@ import com.jonathanreisdorf.plugin.InAppBrowserXwalk.BrowserTabManager;
 import android.content.res.Resources;
 
 import org.apache.cordova.*;
-//import org.apache.cordova.PluginManager;
 import org.apache.cordova.PluginResult;
 
 import org.json.JSONArray;

@@ -15,7 +15,7 @@ import android.widget.LinearLayout;
 
 public class BrowserTabManager {
     private ArrayList<XWalkView> tabs = new ArrayList<>();
-    private ListIterator<XWalkView> tabsIterator = tabs.listIterator();
+    private ListIterator<XWalkView> tabsIterator = tabs.listIterator(); // TODO use
     private XWalkView currentTab = null;
 
     private CallbackContext callbackContext;
@@ -46,11 +46,11 @@ public class BrowserTabManager {
         this.tabs.add(xWalkWebView);
 
         if (this.currentTab == null) {
-            this.currentTab = this.tabsIterator.next();
+            this.currentTab = xWalkWebView;
         }
 
         if (openHidden == false) {
-
+            this.openLastTab();
         }
 
         return xWalkWebView;
