@@ -69,6 +69,11 @@ public class InAppBrowserXwalk extends CordovaPlugin {
         public void openUrl(final String url) {
             loadUrl(url);
         }
+
+        @JavascriptInterface
+        public void showTabsOverview() {
+            //
+        }
     }
 
     private void openBrowser(final JSONArray data) throws JSONException {
@@ -81,7 +86,7 @@ public class InAppBrowserXwalk extends CordovaPlugin {
                 dialog = new BrowserDialog(activity, android.R.style.Theme_NoTitleBar);
                 navigationWebView = new XWalkView(activity, activity);
                 browserTabManager = new BrowserTabManager(activity, callbackContext, navigationWebView);
-                xWalkWebView = browserTabManager.addTab(url, null, true);
+                xWalkWebView = browserTabManager.addTab(url, null, true, false);
 
                 XWalkCookieManager mCookieManager = new XWalkCookieManager();
                 mCookieManager.setAcceptCookie(true);

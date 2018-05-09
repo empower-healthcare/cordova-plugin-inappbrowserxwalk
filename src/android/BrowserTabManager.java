@@ -15,8 +15,10 @@ import android.widget.LinearLayout;
 
 public class BrowserTabManager {
     private ArrayList<XWalkView> tabs = new ArrayList<>();
-    private ListIterator<XWalkView> tabsIterator = tabs.listIterator(); // TODO use
+    private ArrayList<BrowserResourceClient> resourceClients = new ArrayList<>();
+    // private ListIterator<XWalkView> tabsIterator = tabs.listIterator();
     private XWalkView currentTab = null;
+    private BrowserResourceClient currentResourceClient = null;
 
     private CallbackContext callbackContext;
     private XWalkView navigationWebView;
@@ -30,9 +32,19 @@ public class BrowserTabManager {
         this.navigationWebView = navigationWebView;
     }
 
-    public XWalkView addTab(String url, String customUserAgentString, boolean openHidden) {
+    public XWalkView addTab(String url) {
+        return this.addTab(url, null, true, true);
+    }
+
+    public XWalkView addTab(String url, boolean registerTab) {
+        return this.addTab(url, null, registerTab, true);
+    }
+
+    public XWalkView addTab(String url, String customUserAgentString, boolean registerTab, boolean openTab) {
         XWalkView xWalkWebView = new XWalkView(this.activity, this.activity);
-        xWalkWebView.setResourceClient(new BrowserResourceClient(xWalkWebView, this.callbackContext, this.navigationWebView));
+        BrowserResourceClient browserResourceClient = new BrowserResourceClient(xWalkWebView, this.callbackContext, this.navigationWebView);
+
+        xWalkWebView.setResourceClient(browserResourceClient);
         xWalkWebView.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT, (float) 1));
 
         if (customUserAgentString != null && customUserAgentString != "") {
@@ -43,26 +55,40 @@ public class BrowserTabManager {
             xWalkWebView.load(url, "");
         }
 
-        this.tabs.add(xWalkWebView);
-
-        if (this.currentTab == null) {
-            this.currentTab = xWalkWebView;
+        if (registerTab) {
+            this.tabs.add(xWalkWebView);
+            this.resourceClients.add(browserResourceClient);
         }
 
-        if (openHidden == false) {
-            this.openLastTab();
+        if (this.currentResourceClient != null && openTab) {
+            this.currentResourceClient.isActive = false;
+        }
+
+        if (this.currentTab != null && openTab) {
+            this.currentTab.stopLoading();
+        }
+
+        if (this.currentTab == null || openTab) {
+            this.currentTab = xWalkWebView;
+            this.currentResourceClient = browserResourceClient;
+
+            browserResourceClient.isActive = true;
+        }
+
+        if (openTab) {
+            this.openTab();
         }
 
         return xWalkWebView;
     }
 
-    private void openTab(int index) {
-        // this.currentTab = this.tabsIterator.get(index);
+    private void openTab() {
         // TODO attach view to main and remove old view
     }
 
     private void openLastTab() {
+        // TODO use or remove
         int tabsSize = this.tabs.size();
-        this.openTab(tabsSize - 1);
+        this.currentTab = this.tabs.get(tabsSize - 1);
     }
 }

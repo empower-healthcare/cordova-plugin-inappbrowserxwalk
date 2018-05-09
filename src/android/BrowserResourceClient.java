@@ -17,19 +17,18 @@ class BrowserResourceClient extends XWalkResourceClient {
 
     private CallbackContext callbackContext;
     private XWalkView navigationWebView;
-    private String navigationFileUrl;
+    public boolean isActive = false;
 
     BrowserResourceClient(XWalkView view, CallbackContext callbackContext, XWalkView navigationWebView) {
         super(view);
 
         this.callbackContext = callbackContext;
         this.navigationWebView = navigationWebView;
-        this.navigationFileUrl = navigationWebView.getUrl();
     }
 
     @Override
     public void onLoadStarted(XWalkView view, String url) {
-        if (url.equals(this.navigationFileUrl)) {
+        if (!this.isActive) {
             return;
         }
 
@@ -49,7 +48,7 @@ class BrowserResourceClient extends XWalkResourceClient {
 
     @Override
     public void onLoadFinished(XWalkView view, String url) {
-        if (url.equals(this.navigationFileUrl)) {
+        if (!this.isActive) {
             return;
         }
 
