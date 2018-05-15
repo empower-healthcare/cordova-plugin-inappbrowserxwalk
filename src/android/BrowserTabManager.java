@@ -6,6 +6,10 @@ import java.util.ArrayList;
 import java.util.ListIterator;
 
 import org.apache.cordova.CallbackContext;
+import org.json.JSONArray;
+import org.json.JSONException;
+
+import org.xwalk.core.XWalkNavigationItem;
 import org.xwalk.core.XWalkView;
 
 import android.app.Activity;
@@ -18,7 +22,7 @@ import android.widget.LinearLayout;
 public class BrowserTabManager {
     private ArrayList<XWalkView> tabs = new ArrayList<>();
     private ArrayList<BrowserResourceClient> resourceClients = new ArrayList<>();
-    // private ListIterator<XWalkView> tabsIterator = tabs.listIterator();
+
     private XWalkView currentTab = null;
     private XWalkView previousTab = null;
     private BrowserResourceClient currentResourceClient = null;
@@ -110,13 +114,39 @@ public class BrowserTabManager {
         this.mainLayout.invalidate();
     }
 
+    public void load(String url) {
+        this.currentTab.load(url, "");
+    }
+
+    public JSONArray getTabsArray() {
+        JSONArray items = new JSONArray();
+        XWalkNavigationItem navigationItem;
+
+        for (int index = 0; index < this.tabs.size(); index++) {
+            navigationItem = this.tabs.get(index).getNavigationHistory().getCurrentItem();
+            items.put(this.resourceClients.get(index).getNavigationItemDetails(navigationItem));
+        }
+
+        return items;
+    }
+
     /*private void openLastTab() {
         // TODO use or remove
         int tabsSize = this.tabs.size();
         this.currentTab = this.tabs.get(tabsSize - 1);
     }*/
 
-    public void load(String url) {
-        this.currentTab.load(url, "");
-    }
+    /*public JSONArray getNavigationHistoryArray(int tabIndex) {
+        XWalkNavigationHistory navigationHistory = this.tabs.get(tabIndex).getNavigationHistory();
+
+        JSONArray history = new JSONArray();
+        XWalkNavigationItem navigationItem;
+
+        for (int index = 0; index < navigationHistory.size(); index++) {
+            navigationItem = navigationHistory.getItemAt(index);
+            history.put(this.resourceClients.get(tabIndex).getNavigationItemDetails(navigationItem));
+        }
+
+        return history;
+    }*/
 }

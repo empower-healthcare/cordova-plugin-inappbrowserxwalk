@@ -4,7 +4,6 @@ import com.jonathanreisdorf.plugin.InAppBrowserXwalk.BrowserDialog;
 import com.jonathanreisdorf.plugin.InAppBrowserXwalk.BrowserResourceClient;
 import com.jonathanreisdorf.plugin.InAppBrowserXwalk.BrowserTabManager;
 
-import android.content.res.Resources;
 
 import org.apache.cordova.*;
 import org.apache.cordova.PluginResult;
@@ -19,13 +18,16 @@ import org.xwalk.core.XWalkCookieManager;
 import org.xwalk.core.JavascriptInterface;
 
 import android.app.Activity;
+import android.content.res.Resources;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.Window;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.LinearLayout;
-
 import android.webkit.ValueCallback;
+
+import java.util.concurrent.Callable;
+import java.util.concurrent.FutureTask;
 
 public class InAppBrowserXwalk extends CordovaPlugin {
 
@@ -63,6 +65,28 @@ public class InAppBrowserXwalk extends CordovaPlugin {
         return true;
     }
 
+    class TabsJsInterface {
+        TabsJsInterface() {}
+
+        @JavascriptInterface
+        public JSONArray getTabs() {
+            FutureTask<JSONArray> task = new FutureTask<JSONArray>(new Callable<JSONArray>() {
+                @Override
+                public JSONArray call() throws Exception {
+                    return browserTabManager.getTabsArray();
+                }
+            });
+
+            cordova.getActivity().runOnUiThread(task);
+
+            try {
+                return task.get();
+            } catch(Exception ex) {
+                return null;
+            }
+        }
+    }
+
     class NavigationJsInterface {
         NavigationJsInterface() {}
 
@@ -76,7 +100,8 @@ public class InAppBrowserXwalk extends CordovaPlugin {
             cordova.getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    browserTabManager.addTab(tabsOverviewFileUrl, true);
+                    XWalkView webview = browserTabManager.addTab(tabsOverviewFileUrl, true);
+                    webview.addJavascriptInterface(new TabsJsInterface(), "tabs");
                 }
             });
         }
@@ -129,8 +154,7 @@ public class InAppBrowserXwalk extends CordovaPlugin {
                         if (!options.isNull("openHidden")) {
                             openHidden = options.getBoolean("openHidden");
                         }
-                    } catch (JSONException ex) {
-                    }
+                    } catch (JSONException ex) {}
                 }
 
                 navigationHeight = (int) (navigationHeight * Resources.getSystem().getDisplayMetrics().density);

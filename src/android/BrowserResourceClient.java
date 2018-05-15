@@ -80,6 +80,22 @@ class BrowserResourceClient extends XWalkResourceClient {
         } catch (JSONException ex) {}
     }
 
+    public JSONObject getNavigationItemDetails(XWalkNavigationItem navigationItem) {
+        JSONObject obj = new JSONObject();
+        this.addNavigationItemDetails(navigationItem, obj);
+        return obj;
+    }
+
+    public JSONObject addNavigationItemDetails(XWalkNavigationItem navigationItem, JSONObject obj) {
+        try {
+            obj.put("navigationUrl", navigationItem.getUrl());
+            obj.put("navigationOriginalUrl", navigationItem.getOriginalUrl());
+            obj.put("navigationTitle", navigationItem.getTitle());
+        } catch (JSONException ex) {}
+
+        return obj;
+    }
+
     public JSONObject addNavigationItemDetails(XWalkView view, JSONObject obj) {
         XWalkNavigationHistory navigationHistory = view.getNavigationHistory();
 
@@ -88,14 +104,7 @@ class BrowserResourceClient extends XWalkResourceClient {
         }
 
         XWalkNavigationItem navigationItem = navigationHistory.getCurrentItem();
-
-        try {
-            obj.put("navigationUrl", navigationItem.getUrl());
-            obj.put("navigationOriginalUrl", navigationItem.getOriginalUrl());
-            obj.put("navigationTitle", navigationItem.getTitle());
-        } catch (JSONException ex) {}
-
-        return obj;
+        return this.addNavigationItemDetails(navigationItem, obj);
     }
 
     public void broadcastNavigationItemDetails(XWalkView view) {
@@ -112,6 +121,10 @@ class BrowserResourceClient extends XWalkResourceClient {
     }
 
     public void onNavigationEvent(JSONObject obj) {
-        this.navigationWebView.evaluateJavascript("javascript:window.onNavigationEvent && window.onNavigationEvent(" + obj + ")", null);
+        this.triggerJavascriptHandler("onNavigationEvent", obj);
+    }
+
+    public void triggerJavascriptHandler(String handlerName, JSONObject obj) {
+        this.navigationWebView.evaluateJavascript("javascript:window." + handlerName + " && window." + handlerName + "(" + obj + ")", null);
     }
 }
