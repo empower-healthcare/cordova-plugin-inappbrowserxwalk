@@ -97,6 +97,7 @@ public class BrowserTabManager {
     }
 
     private void openTab() {
+        // TODO smoothen
         this.mainLayout.removeViewAt(0);
         this.mainLayout.addView(this.currentTab, 0);
     }
@@ -105,5 +106,9 @@ public class BrowserTabManager {
         // TODO use or remove
         int tabsSize = this.tabs.size();
         this.currentTab = this.tabs.get(tabsSize - 1);
+    }
+
+    public void load(String url) {
+        this.currentTab.load(url, "");
     }
 }

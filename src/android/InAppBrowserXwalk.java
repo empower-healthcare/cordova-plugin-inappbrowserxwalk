@@ -19,6 +19,7 @@ import org.xwalk.core.XWalkCookieManager;
 import org.xwalk.core.JavascriptInterface;
 
 import android.app.Activity;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.Window;
 import android.view.ViewGroup.LayoutParams;
@@ -32,7 +33,6 @@ public class InAppBrowserXwalk extends CordovaPlugin {
     private String tabsOverviewFileUrl = "file:///android_asset/www/tabs.html";
 
     private BrowserDialog dialog;
-    private XWalkView xWalkWebView;
     private XWalkView navigationWebView;
     private CallbackContext callbackContext;
     private BrowserTabManager browserTabManager;
@@ -102,10 +102,11 @@ public class InAppBrowserXwalk extends CordovaPlugin {
                 dialog = new BrowserDialog(activity, android.R.style.Theme_NoTitleBar);
                 LinearLayout main = new LinearLayout(activity);
                 main.setOrientation(LinearLayout.VERTICAL);
+                main.setBackgroundColor(Color.BLACK);
 
                 navigationWebView = new XWalkView(activity, activity);
                 browserTabManager = new BrowserTabManager(activity, main, callbackContext, navigationWebView);
-                xWalkWebView = browserTabManager.initialize(url);
+                XWalkView xWalkWebView = browserTabManager.initialize(url);
 
                 XWalkCookieManager mCookieManager = new XWalkCookieManager();
                 mCookieManager.setAcceptCookie(true);
@@ -175,7 +176,7 @@ public class InAppBrowserXwalk extends CordovaPlugin {
         this.cordova.getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                xWalkWebView.load(url, "");
+                browserTabManager.load(url);
             }
         });
     }
@@ -184,7 +185,7 @@ public class InAppBrowserXwalk extends CordovaPlugin {
         this.cordova.getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                xWalkWebView.onDestroy();
+                //browserTabManager.onDestroy();
                 dialog.dismiss();
                 try {
                     JSONObject obj = new JSONObject();
