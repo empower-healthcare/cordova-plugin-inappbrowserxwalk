@@ -9,6 +9,7 @@ import org.apache.cordova.CallbackContext;
 import org.xwalk.core.XWalkView;
 
 import android.app.Activity;
+import android.graphics.Color;
 import android.view.ViewParent;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.LinearLayout;
@@ -21,6 +22,7 @@ public class BrowserTabManager {
     private XWalkView currentTab = null;
     private XWalkView previousTab = null;
     private BrowserResourceClient currentResourceClient = null;
+    private BrowserResourceClient previousResourceClient = null;
 
     private Activity activity;
     private LinearLayout mainLayout;
@@ -36,20 +38,18 @@ public class BrowserTabManager {
     }
 
     public XWalkView initialize(String url) {
-        return this.addTab(url, null, true, false);
+        return this.addTab(url, null, false, false);
     }
 
     public XWalkView addTab(String url) {
-        return this.addTab(url, null, true, true);
+        return this.addTab(url, null, false, true);
     }
 
-    public XWalkView addTab(String url, boolean registerTab) {
-        return this.addTab(url, null, registerTab, true);
+    public XWalkView addTab(String url, boolean systemTab) {
+        return this.addTab(url, null, systemTab, true);
     }
 
-    public XWalkView addTab(String url, String customUserAgentString, boolean registerTab, boolean openTab) {
-        this.previousTab = this.currentTab;
-
+    public XWalkView addTab(String url, String customUserAgentString, boolean systemTab, boolean openTab) {
         XWalkView xWalkWebView = new XWalkView(this.activity, this.activity);
         BrowserResourceClient browserResourceClient = new BrowserResourceClient(xWalkWebView, this.callbackContext, this.navigationWebView);
 
@@ -64,49 +64,57 @@ public class BrowserTabManager {
             xWalkWebView.load(url, "");
         }
 
-        if (registerTab) {
+        if (systemTab) {
+            xWalkWebView.setBackgroundColor(Color.BLACK);
+            browserResourceClient.isSystem = true;
+        } else {
             this.tabs.add(xWalkWebView);
             this.resourceClients.add(browserResourceClient);
         }
 
-        if (this.currentResourceClient != null && openTab) {
-            this.currentResourceClient.isActive = false;
-        }
-
-        if (this.currentTab != null && openTab) {
-            this.currentTab.stopLoading();
-        }
-
-        if (this.currentTab == null || openTab) {
+        if (this.currentTab == null) {
             this.currentTab = xWalkWebView;
             this.currentResourceClient = browserResourceClient;
-
             browserResourceClient.isActive = true;
         }
 
         if (openTab) {
-            this.openTab();
+            this.openTab(xWalkWebView, browserResourceClient);
         }
 
         return xWalkWebView;
     }
 
-    public void openPreviousTab() {
-        this.currentTab = this.previousTab;
-        this.openTab();
+    public void closeSystemTab() {
+        this.openTab(this.previousTab, this.previousResourceClient);
+        this.previousTab.onDestroy();
     }
 
-    private void openTab() {
-        // TODO smoothen
+    private void openTab(final XWalkView newTab, final BrowserResourceClient newResourceClient) {
+        this.previousTab = this.currentTab;
+        this.previousResourceClient = this.currentResourceClient;
+
+        this.currentTab = newTab;
+        this.currentResourceClient = newResourceClient;
+
+        if (this.previousTab != null && this.previousResourceClient != null) {
+            this.previousTab.stopLoading();
+            this.previousResourceClient.isActive = false;
+        }
+
+        this.currentResourceClient.isActive = true;
+        this.currentResourceClient.broadcastNavigationItemDetails(this.currentTab);
+
         this.mainLayout.removeViewAt(0);
         this.mainLayout.addView(this.currentTab, 0);
+        this.mainLayout.invalidate();
     }
 
-    private void openLastTab() {
+    /*private void openLastTab() {
         // TODO use or remove
         int tabsSize = this.tabs.size();
         this.currentTab = this.tabs.get(tabsSize - 1);
-    }
+    }*/
 
     public void load(String url) {
         this.currentTab.load(url, "");

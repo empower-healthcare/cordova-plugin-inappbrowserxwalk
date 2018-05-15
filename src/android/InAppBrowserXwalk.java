@@ -76,7 +76,7 @@ public class InAppBrowserXwalk extends CordovaPlugin {
             cordova.getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    browserTabManager.addTab(tabsOverviewFileUrl, false);
+                    browserTabManager.addTab(tabsOverviewFileUrl, true);
                 }
             });
         }
@@ -86,7 +86,7 @@ public class InAppBrowserXwalk extends CordovaPlugin {
             cordova.getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    browserTabManager.openPreviousTab();
+                    browserTabManager.closeSystemTab();
                 }
             });
         }

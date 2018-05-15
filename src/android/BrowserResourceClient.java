@@ -17,7 +17,9 @@ class BrowserResourceClient extends XWalkResourceClient {
 
     private CallbackContext callbackContext;
     private XWalkView navigationWebView;
+
     public boolean isActive = false;
+    public boolean isSystem = false;
 
     BrowserResourceClient(XWalkView view, CallbackContext callbackContext, XWalkView navigationWebView) {
         super(view);
@@ -42,8 +44,7 @@ class BrowserResourceClient extends XWalkResourceClient {
             this.callbackContext.sendPluginResult(result);
 
             this.onNavigationEvent(obj);
-        } catch (JSONException ex) {
-        }
+        } catch (JSONException ex) {}
     }
 
     @Override
@@ -62,8 +63,7 @@ class BrowserResourceClient extends XWalkResourceClient {
             this.callbackContext.sendPluginResult(result);
 
             this.onNavigationEvent(obj);
-        } catch (JSONException ex) {
-        }
+        } catch (JSONException ex) {}
     }
 
     @Override
@@ -77,8 +77,7 @@ class BrowserResourceClient extends XWalkResourceClient {
             this.callbackContext.sendPluginResult(result);
 
             this.onNavigationEvent(obj);
-        } catch (JSONException ex) {
-        }
+        } catch (JSONException ex) {}
     }
 
     public JSONObject addNavigationItemDetails(XWalkView view, JSONObject obj) {
@@ -94,10 +93,22 @@ class BrowserResourceClient extends XWalkResourceClient {
             obj.put("navigationUrl", navigationItem.getUrl());
             obj.put("navigationOriginalUrl", navigationItem.getOriginalUrl());
             obj.put("navigationTitle", navigationItem.getTitle());
-        } catch (JSONException ex) {
-        }
+        } catch (JSONException ex) {}
 
         return obj;
+    }
+
+    public void broadcastNavigationItemDetails(XWalkView view) {
+        try {
+            JSONObject obj = new JSONObject();
+            this.addNavigationItemDetails(view, obj);
+            obj.put("type", "status");
+            PluginResult result = new PluginResult(PluginResult.Status.OK, obj);
+            result.setKeepCallback(true);
+            this.callbackContext.sendPluginResult(result);
+
+            this.onNavigationEvent(obj);
+        } catch (JSONException ex) {}
     }
 
     public void onNavigationEvent(JSONObject obj) {
