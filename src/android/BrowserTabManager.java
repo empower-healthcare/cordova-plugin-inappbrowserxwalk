@@ -9,6 +9,7 @@ import org.apache.cordova.CallbackContext;
 import org.xwalk.core.XWalkView;
 
 import android.app.Activity;
+import android.view.ViewParent;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.LinearLayout;
 
@@ -18,18 +19,24 @@ public class BrowserTabManager {
     private ArrayList<BrowserResourceClient> resourceClients = new ArrayList<>();
     // private ListIterator<XWalkView> tabsIterator = tabs.listIterator();
     private XWalkView currentTab = null;
+    private XWalkView previousTab = null;
     private BrowserResourceClient currentResourceClient = null;
 
+    private Activity activity;
+    private LinearLayout mainLayout;
     private CallbackContext callbackContext;
     private XWalkView navigationWebView;
 
-    private Activity activity;
 
-
-    BrowserTabManager(Activity activity, CallbackContext callbackContext, XWalkView navigationWebView) {
+    BrowserTabManager(Activity activity, LinearLayout mainLayout, CallbackContext callbackContext, XWalkView navigationWebView) {
         this.activity = activity;
+        this.mainLayout = mainLayout;
         this.callbackContext = callbackContext;
         this.navigationWebView = navigationWebView;
+    }
+
+    public XWalkView initialize(String url) {
+        return this.addTab(url, null, true, false);
     }
 
     public XWalkView addTab(String url) {
@@ -41,6 +48,8 @@ public class BrowserTabManager {
     }
 
     public XWalkView addTab(String url, String customUserAgentString, boolean registerTab, boolean openTab) {
+        this.previousTab = this.currentTab;
+
         XWalkView xWalkWebView = new XWalkView(this.activity, this.activity);
         BrowserResourceClient browserResourceClient = new BrowserResourceClient(xWalkWebView, this.callbackContext, this.navigationWebView);
 
@@ -82,8 +91,14 @@ public class BrowserTabManager {
         return xWalkWebView;
     }
 
+    public void openPreviousTab() {
+        this.currentTab = this.previousTab;
+        this.openTab();
+    }
+
     private void openTab() {
-        // TODO attach view to main and remove old view
+        this.mainLayout.removeViewAt(0);
+        this.mainLayout.addView(this.currentTab, 0);
     }
 
     private void openLastTab() {

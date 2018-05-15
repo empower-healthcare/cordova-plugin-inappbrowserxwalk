@@ -29,6 +29,7 @@ import android.webkit.ValueCallback;
 public class InAppBrowserXwalk extends CordovaPlugin {
 
     private String navigationFileUrl = "file:///android_asset/www/navigation.html";
+    private String tabsOverviewFileUrl = "file:///android_asset/www/tabs.html";
 
     private BrowserDialog dialog;
     private XWalkView xWalkWebView;
@@ -72,7 +73,22 @@ public class InAppBrowserXwalk extends CordovaPlugin {
 
         @JavascriptInterface
         public void showTabsOverview() {
-            //
+            cordova.getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    browserTabManager.addTab(tabsOverviewFileUrl, false);
+                }
+            });
+        }
+
+        @JavascriptInterface
+        public void closeTabsOverview() {
+            cordova.getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    browserTabManager.openPreviousTab();
+                }
+            });
         }
     }
 
@@ -84,9 +100,12 @@ public class InAppBrowserXwalk extends CordovaPlugin {
             @Override
             public void run() {
                 dialog = new BrowserDialog(activity, android.R.style.Theme_NoTitleBar);
+                LinearLayout main = new LinearLayout(activity);
+                main.setOrientation(LinearLayout.VERTICAL);
+
                 navigationWebView = new XWalkView(activity, activity);
-                browserTabManager = new BrowserTabManager(activity, callbackContext, navigationWebView);
-                xWalkWebView = browserTabManager.addTab(url, null, true, false);
+                browserTabManager = new BrowserTabManager(activity, main, callbackContext, navigationWebView);
+                xWalkWebView = browserTabManager.initialize(url);
 
                 XWalkCookieManager mCookieManager = new XWalkCookieManager();
                 mCookieManager.setAcceptCookie(true);
@@ -112,9 +131,6 @@ public class InAppBrowserXwalk extends CordovaPlugin {
                     } catch (JSONException ex) {
                     }
                 }
-
-                LinearLayout main = new LinearLayout(activity);
-                main.setOrientation(LinearLayout.VERTICAL);
 
                 navigationHeight = (int) (navigationHeight * Resources.getSystem().getDisplayMetrics().density);
                 navigationWebView.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, navigationHeight, (float) 0));
