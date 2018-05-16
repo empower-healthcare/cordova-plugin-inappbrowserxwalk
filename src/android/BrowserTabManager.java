@@ -91,7 +91,10 @@ public class BrowserTabManager {
 
     public void closeSystemTab() {
         this.openTab(this.previousTab, this.previousResourceClient);
+
         this.previousTab.onDestroy();
+        this.previousTab = null;
+        this.previousResourceClient = null;
     }
 
     private void openTab(final XWalkView newTab, final BrowserResourceClient newResourceClient) {

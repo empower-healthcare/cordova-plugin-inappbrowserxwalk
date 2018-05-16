@@ -26,8 +26,6 @@ import android.view.ViewGroup.LayoutParams;
 import android.widget.LinearLayout;
 import android.webkit.ValueCallback;
 
-import java.util.concurrent.Callable;
-import java.util.concurrent.FutureTask;
 
 public class InAppBrowserXwalk extends CordovaPlugin {
 
@@ -66,24 +64,21 @@ public class InAppBrowserXwalk extends CordovaPlugin {
     }
 
     class TabsJsInterface {
-        TabsJsInterface() {}
+        private XWalkView _webview;
+
+        TabsJsInterface(XWalkView webview) {
+            this._webview = webview;
+        }
 
         @JavascriptInterface
-        public JSONArray getTabs() {
-            FutureTask<JSONArray> task = new FutureTask<JSONArray>(new Callable<JSONArray>() {
+        public void getTabs(String callbackName) {
+            cordova.getActivity().runOnUiThread(new Runnable() {
                 @Override
-                public JSONArray call() throws Exception {
-                    return browserTabManager.getTabsArray();
+                public void run() {
+                    JSONArray tabsArray = browserTabManager.getTabsArray();
+                    _webview.evaluateJavascript(callbackName + "(" + tabsArray + ")", null);
                 }
             });
-
-            cordova.getActivity().runOnUiThread(task);
-
-            try {
-                return task.get();
-            } catch(Exception ex) {
-                return null;
-            }
         }
     }
 
@@ -101,7 +96,7 @@ public class InAppBrowserXwalk extends CordovaPlugin {
                 @Override
                 public void run() {
                     XWalkView webview = browserTabManager.addTab(tabsOverviewFileUrl, true);
-                    webview.addJavascriptInterface(new TabsJsInterface(), "tabs");
+                    webview.addJavascriptInterface(new TabsJsInterface(webview), "tabs");
                 }
             });
         }
