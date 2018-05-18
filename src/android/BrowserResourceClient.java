@@ -87,6 +87,10 @@ class BrowserResourceClient extends XWalkResourceClient {
     }
 
     public JSONObject addNavigationItemDetails(XWalkNavigationItem navigationItem, JSONObject obj) {
+        if (navigationItem == null) {
+            return obj;
+        }
+
         try {
             obj.put("navigationUrl", navigationItem.getUrl());
             obj.put("navigationOriginalUrl", navigationItem.getOriginalUrl());

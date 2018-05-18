@@ -71,6 +71,7 @@ public class BrowserTabManager {
         if (systemTab) {
             xWalkWebView.setBackgroundColor(Color.BLACK);
             browserResourceClient.isSystem = true;
+            browserResourceClient.triggerJavascriptHandler("onSystemTabOpen", null);
         } else {
             this.tabs.add(xWalkWebView);
             this.resourceClients.add(browserResourceClient);
@@ -112,6 +113,31 @@ public class BrowserTabManager {
         newResourceClient.triggerJavascriptHandler("onSystemTabClose", null);
     }
 
+    public void closeTabByIndex(final int index) {
+        XWalkView tab = this.tabs.get(index);
+        BrowserResourceClient resourceClient = this.resourceClients.get(index);
+
+        this.tabs.remove(tab);
+        this.resourceClients.remove(resourceClient);
+        tab.onDestroy();
+
+
+        boolean isEmptyList = this.tabs.size() < 1;
+        if (isEmptyList) {
+            this.addTab("about:blank", null, false, false);
+        }
+
+        if (isEmptyList || this.previousTab == null || this.previousResourceClient == null) {
+            int lastTabIndex = this.tabs.size() - 1;
+            this.previousTab = this.tabs.get(lastTabIndex);
+            this.previousResourceClient = this.resourceClients.get(lastTabIndex);
+        }
+
+        if (isEmptyList) {
+            this.closeSystemTab();
+        }
+    }
+
     private void openTab(final XWalkView newTab, final BrowserResourceClient newResourceClient) {
         this.previousTab = this.currentTab;
         this.previousResourceClient = this.currentResourceClient;
@@ -140,25 +166,6 @@ public class BrowserTabManager {
             this.closeSystemTab(newTab, newResourceClient);
         } else {
             this.openTab(newTab, newResourceClient);
-        }
-    }
-
-    public void closeTabByIndex(final int index) {
-        XWalkView tab = this.tabs.get(index);
-        BrowserResourceClient resourceClient = this.resourceClients.get(index);
-
-        this.tabs.remove(tab);
-        this.resourceClients.remove(resourceClient);
-        tab.onDestroy();
-
-        if (this.tabs.size() < 1) {
-            this.addTab("about:blank", null, false, false);
-        }
-
-        if (this.previousTab == null || this.previousResourceClient == null) {
-            int lastTabIndex = this.tabs.size() - 1;
-            this.previousTab = this.tabs.get(lastTabIndex);
-            this.previousResourceClient = this.resourceClients.get(lastTabIndex);
         }
     }
 

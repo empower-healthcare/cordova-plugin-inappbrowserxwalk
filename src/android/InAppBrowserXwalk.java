@@ -71,7 +71,7 @@ public class InAppBrowserXwalk extends CordovaPlugin {
         }
 
         @JavascriptInterface
-        public void getTabs(String callbackName) {
+        public void getTabs(final String callbackName) {
             cordova.getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -81,7 +81,7 @@ public class InAppBrowserXwalk extends CordovaPlugin {
         }
 
         @JavascriptInterface
-        public void addTab(String url) {
+        public void addTab(final String url) {
             cordova.getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -102,7 +102,7 @@ public class InAppBrowserXwalk extends CordovaPlugin {
         }
 
         @JavascriptInterface
-        public void closeTab(final int index, String callbackName) {
+        public void closeTab(final int index, final String callbackName) {
             cordova.getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
