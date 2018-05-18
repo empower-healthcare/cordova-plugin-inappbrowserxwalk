@@ -90,11 +90,26 @@ public class BrowserTabManager {
     }
 
     public void closeSystemTab() {
-        this.openTab(this.previousTab, this.previousResourceClient);
+        this.closeSystemTab(null, null);
+    }
+
+    public void closeSystemTab(XWalkView newTab, BrowserResourceClient newResourceClient) {
+        if (newTab == null || newResourceClient == null) {
+            newTab = this.previousTab;
+            newResourceClient = this.previousResourceClient;
+        }
+
+        if (newTab == null || newResourceClient == null || !this.currentResourceClient.isSystem) {
+            return;
+        }
+
+        this.openTab(newTab, newResourceClient);
 
         this.previousTab.onDestroy();
         this.previousTab = null;
         this.previousResourceClient = null;
+
+        newResourceClient.triggerJavascriptHandler("onSystemTabClose", null);
     }
 
     private void openTab(final XWalkView newTab, final BrowserResourceClient newResourceClient) {
@@ -117,6 +132,36 @@ public class BrowserTabManager {
         this.mainLayout.invalidate();
     }
 
+    public void openTabByIndex(final int index, final boolean closeSystemTab) {
+        XWalkView newTab = this.tabs.get(index);
+        BrowserResourceClient newResourceClient = this.resourceClients.get(index);
+
+        if (closeSystemTab) {
+            this.closeSystemTab(newTab, newResourceClient);
+        } else {
+            this.openTab(newTab, newResourceClient);
+        }
+    }
+
+    public void closeTabByIndex(final int index) {
+        XWalkView tab = this.tabs.get(index);
+        BrowserResourceClient resourceClient = this.resourceClients.get(index);
+
+        this.tabs.remove(tab);
+        this.resourceClients.remove(resourceClient);
+        tab.onDestroy();
+
+        if (this.tabs.size() < 1) {
+            this.addTab("about:blank", null, false, false);
+        }
+
+        if (this.previousTab == null || this.previousResourceClient == null) {
+            int lastTabIndex = this.tabs.size() - 1;
+            this.previousTab = this.tabs.get(lastTabIndex);
+            this.previousResourceClient = this.resourceClients.get(lastTabIndex);
+        }
+    }
+
     public void load(String url) {
         this.currentTab.load(url, "");
     }
@@ -132,12 +177,6 @@ public class BrowserTabManager {
 
         return items;
     }
-
-    /*private void openLastTab() {
-        // TODO use or remove
-        int tabsSize = this.tabs.size();
-        this.currentTab = this.tabs.get(tabsSize - 1);
-    }*/
 
     /*public JSONArray getNavigationHistoryArray(int tabIndex) {
         XWalkNavigationHistory navigationHistory = this.tabs.get(tabIndex).getNavigationHistory();

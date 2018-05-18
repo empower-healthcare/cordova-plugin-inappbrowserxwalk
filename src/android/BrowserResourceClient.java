@@ -125,6 +125,6 @@ class BrowserResourceClient extends XWalkResourceClient {
     }
 
     public void triggerJavascriptHandler(String handlerName, JSONObject obj) {
-        this.navigationWebView.evaluateJavascript("javascript:window." + handlerName + " && window." + handlerName + "(" + obj + ")", null);
+        this.navigationWebView.evaluateJavascript("window." + handlerName + " && window." + handlerName + "(" + obj + ")", null);
     }
 }

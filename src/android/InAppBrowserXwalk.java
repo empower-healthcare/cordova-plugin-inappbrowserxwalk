@@ -75,10 +75,46 @@ public class InAppBrowserXwalk extends CordovaPlugin {
             cordova.getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    JSONArray tabsArray = browserTabManager.getTabsArray();
-                    _webview.evaluateJavascript(callbackName + "(" + tabsArray + ")", null);
+                    _sendTabsArray(callbackName);
                 }
             });
+        }
+
+        @JavascriptInterface
+        public void addTab(String url) {
+            cordova.getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    browserTabManager.closeSystemTab();
+                    browserTabManager.addTab(url);
+                }
+            });
+        }
+
+        @JavascriptInterface
+        public void openTab(final int index) {
+            cordova.getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    browserTabManager.openTabByIndex(index, true);
+                }
+            });
+        }
+
+        @JavascriptInterface
+        public void closeTab(final int index, String callbackName) {
+            cordova.getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    browserTabManager.closeTabByIndex(index);
+                    _sendTabsArray(callbackName);
+                }
+            });
+        }
+
+        protected void _sendTabsArray(String callbackName) {
+            JSONArray tabsArray = browserTabManager.getTabsArray();
+            _webview.evaluateJavascript(callbackName + "(" + tabsArray + ")", null);
         }
     }
 
