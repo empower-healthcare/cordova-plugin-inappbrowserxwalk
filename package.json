@@ -1,18 +1,18 @@
 {
-    "version": "0.4.0",
-    "name": "com.mcierzniak.cordova.plugin.inappbrowserxwalk",
-    "cordova_name": "InAppBrowser Crosswalk",
-    "keywords": [
-			"ecosystem:cordova",
-			"cordova-android"
-        ],
-    "platforms": [
-        "android"
-    ],
-    "engines": [
-        {
-            "name": "cordova",
-            "version": ">=3.4.0"
-        }
-    ]
+  "version": "0.7.1",
+  "name": "com.jonathanreisdorf.cordova.plugin.inappbrowserxwalk",
+  "cordova_name": "InAppBrowser Crosswalk",
+  "keywords": [
+    "ecosystem:cordova",
+    "cordova-android"
+  ],
+  "platforms": [
+    "android"
+  ],
+  "engines": [
+    {
+      "name": "cordova",
+      "version": ">=3.4.0"
+    }
+  ]
 }

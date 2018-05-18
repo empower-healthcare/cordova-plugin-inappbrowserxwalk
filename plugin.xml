@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <plugin xmlns="http://www.phonegap.com/ns/plugins/1.0"
-        id="com.mcierzniak.cordova.plugin.inappbrowserxwalk"
+        id="com.jonathanreisdorf.cordova.plugin.inappbrowserxwalk"
         version="0.4.0">
 
   <name>InAppBrowser Crosswalk</name>
@@ -19,12 +19,12 @@
 
     <config-file target="res/xml/config.xml" parent="/*">
       <feature name="InAppBrowserXwalk">
-        <param name="android-package" value="com.example.plugin.InAppBrowserXwalk.InAppBrowserXwalk"/>
+        <param name="android-package" value="com.jonathanreisdorf.plugin.InAppBrowserXwalk.InAppBrowserXwalk"/>
       </feature>
     </config-file>
 
-    <source-file src="src/android/InAppBrowserXwalk.java" target-dir="src/com/mcierzniak/plugin/"/>
-    <source-file src="src/android/BrowserDialog.java" target-dir="src/com/mcierzniak/plugin/"/>
+    <source-file src="src/android/InAppBrowserXwalk.java" target-dir="src/com/jonathanreisdorf/plugin/"/>
+    <source-file src="src/android/BrowserDialog.java" target-dir="src/com/jonathanreisdorf/plugin/"/>
   </platform>
 
 

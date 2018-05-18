@@ -1,4 +1,4 @@
-package com.example.plugin.InAppBrowserXwalk;
+package com.jonathanreisdorf.plugin.InAppBrowserXwalk;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -26,5 +26,9 @@ public class BrowserDialog extends Dialog {
     public BrowserDialog(Context context, int theme) {
         super(context, theme);
     }
-    
+
+    @Override
+    public void onBackPressed() {
+      return;
+    }
 }
