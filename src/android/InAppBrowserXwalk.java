@@ -136,6 +136,9 @@ public class InAppBrowserXwalk extends CordovaPlugin {
                 mCookieManager.setAcceptFileSchemeCookies(true);
                 xWalkWebView.setResourceClient(new MyResourceClient(xWalkWebView));
                 xWalkWebView.load(url, "");
+                xWalkWebView.setFocusable(true);
+                xWalkWebView.setFocusableInTouchMode(true);
+                xWalkWebView.requestFocus();
 
                 String toolbarColor = "#FFFFFF";
                 int toolbarHeight = 80;
