@@ -93,6 +93,8 @@ public class InAppBrowserXwalk extends CordovaPlugin {
 
         @Override
         public void onLoadFinished(XWalkView view, String url) {
+            view.requestFocus();
+            view.requestFocusFromTouch();
             try {
                 JSONObject obj = new JSONObject();
                 obj.put("type", "loadstop");
@@ -136,7 +138,6 @@ public class InAppBrowserXwalk extends CordovaPlugin {
                 mCookieManager.setAcceptFileSchemeCookies(true);
                 xWalkWebView.setResourceClient(new MyResourceClient(xWalkWebView));
                 xWalkWebView.load(url, "");
-                xWalkWebView.requestFocus();
 
                 String toolbarColor = "#FFFFFF";
                 int toolbarHeight = 80;
