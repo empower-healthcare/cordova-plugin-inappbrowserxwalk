@@ -94,7 +94,6 @@ public class InAppBrowserXwalk extends CordovaPlugin {
         @Override
         public void onLoadFinished(XWalkView view, String url) {
             view.requestFocus();
-            view.requestFocusFromTouch();
             try {
                 JSONObject obj = new JSONObject();
                 obj.put("type", "loadstop");
